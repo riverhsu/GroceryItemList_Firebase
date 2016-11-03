@@ -31,11 +31,34 @@ class LoginViewController: UIViewController {
   @IBOutlet weak var textFieldLoginEmail: UITextField!
   @IBOutlet weak var textFieldLoginPassword: UITextField!
   
-  // MARK: Actions
-  @IBAction func loginDidTouch(_ sender: AnyObject) {
-    performSegue(withIdentifier: loginToList, sender: nil)
+  //Observing Authentication State
+  // Firebase has observers that allow you to monitor a user's authentication state
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    // 1 Create an authentication observer using addStateDidChangeListener. The block is passsed two parameter: auth and user
+    //   FIRAuth.auth()?.addStateDidChangeListener(<#T##listener: FIRAuthStateDidChangeListenerBlock##FIRAuthStateDidChangeListenerBlock##(FIRAuth, FIRUser?) -> Void#>)
+    FIRAuth.auth()!.addStateDidChangeListener(){ auth, user in
+      // 2 Test the value of user. Upon sucesssful user authentication, user is populated with the user's information . 
+      //   if authentication fails, the variable is nil
+      if user != nil {
+        // 3 On successful authentication, perform the segue. (go to GroceryListTableViewController.swift)
+        self.performSegue(withIdentifier: self.loginToList, sender: nil)
+      }
+    }
   }
   
+  
+  // MARK: Actions
+  @IBAction func loginDidTouch(_ sender: AnyObject) {
+    
+    FIRAuth.auth()!.signIn(withEmail: textFieldLoginEmail.text!, password: textFieldLoginPassword.text!)
+    performSegue(withIdentifier: loginToList, sender: nil)
+    
+  }
+  
+  
+  // 在設定 email/password 認證後, 修改此處
   @IBAction func signUpDidTouch(_ sender: AnyObject) {
     let alert = UIAlertController(title: "Register",
                                   message: "Register",
@@ -43,6 +66,19 @@ class LoginViewController: UIViewController {
     
     let saveAction = UIAlertAction(title: "Save",
                                    style: .default) { action in
+        // 1 由 alert controller 獲得 email & password
+        let emailField = alert.textFields![0]
+        let passwordField = alert.textFields![1]
+                                    
+        //2 使用 Firebase auth object 來傳送 email & password
+        FIRAuth.auth()!.createUser(withEmail: emailField.text!, password: passwordField.text!) { user, error in
+          
+          if error == nil {
+            //3 如果沒有錯誤，就會建立帳號
+            FIRAuth.auth()!.signIn(withEmail: self.textFieldLoginEmail.text!, password: self.textFieldLoginPassword.text!)
+          }
+                                      
+        }
                                     
     }
     

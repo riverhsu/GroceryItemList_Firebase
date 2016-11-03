@@ -32,6 +32,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     //connection setting to Firebase database
     FIRApp.configure()
+    
+    // Firebase : Enabling Offline to work in spotty data connection 
+    FIRDatabase.database().persistenceEnabled = true
+    
     return true
   }
 
