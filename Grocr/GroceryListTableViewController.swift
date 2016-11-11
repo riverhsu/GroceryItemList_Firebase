@@ -66,7 +66,7 @@ class GroceryListTableViewController: UITableViewController {
       
       // 2 Use this reference to sve the current user's email
       currentUserRef.setValue(self.user.email)
-      // 3 This rmoves the value of the reference's location after the connection to Firebase closes. This is for monitoring users who have gone offline
+      // 3 This removes the value of the reference's location after the connection to Firebase closes. This is for monitoring users who have gone offline
       currentUserRef.onDisconnectRemoveValue()
       
     }
@@ -86,8 +86,8 @@ class GroceryListTableViewController: UITableViewController {
     /*
     // by attaching an asychronous listener to a reference using below
     // parameters: 
-    // 1. an instance of FIRDataEventType : what event you want to listen for. Here listen for a .value event type, which in turn lsitens for all types of changes to the data in your firebase database, add, removed, and changed
-    // 2. a closuress: when the change occurs, the database updates the app with the most recent data via the closure, which is passed an instance of FIRDataSnapshot, 
+    // 1. (listen to events) an instance of FIRDataEventType : what event you want to listen for. Here listen for a .value event type, which in turn listens for all types of changes to the data in your firebase database, add, removed, and changed
+    // 2. (take action) a closures: when the change occurs, the database updates the app with the most recent data via the closure, which is passed an instance of FIRDataSnapshot,
     // Snapshot represents the data at that specific moment in time. To access the data n the snapshot, you use the value propertys
     
     // 1. attach a listener to receive updates whenever the grocery-items endpoint is modifieds
@@ -151,6 +151,7 @@ class GroceryListTableViewController: UITableViewController {
   }
   
   
+  // Check off items
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     
     //1 Find the cell that user tapped

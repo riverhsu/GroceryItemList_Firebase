@@ -37,6 +37,14 @@ class OnlineUsersTableViewController: UITableViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    let vAuth = FIRAuth.auth()!
+    if let uemail = vAuth.currentUser?.email{
+        let msgstr = uemail + " is on line"
+        let msgbox = UIAlertController(title: "Check", message: msgstr, preferredStyle: .alert)
+        let okbtn = UIAlertAction(title: "OK", style: .default, handler: nil)
+        msgbox.addAction(okbtn)
+        self.present(msgbox, animated: true, completion: nil)
+    }
     // Displaying a list of Online Users
     // currentUsers.append("hungry@person.food")   //oringally hard-coding here
     // *** append users ***
@@ -44,6 +52,7 @@ class OnlineUsersTableViewController: UITableViewController {
     // 1. Create an observer that listens for children added to the location managed by usersRef
     //    This is different than a value listner because only the added child is passed to the closure
     //    usersRef.observe(<#T##eventType: FIRDataEventType##FIRDataEventType#>, with: <#T##(FIRDataSnapshot) -> Void#>)
+    
     usersRef.observe(.childAdded, with: { snap in
       // 2. Take the value from the snapshot, and hen append it to the local array
       guard let email = snap.value as? String else {return}
@@ -59,12 +68,11 @@ class OnlineUsersTableViewController: UITableViewController {
     // *** while a user's offline ***
     usersRef.observe(.childRemoved, with: { snap in
       guard let emailToFind = snap.value as? String else {return}
-      
       for (index, email) in self.currentUsers.enumerated(){
         if email == emailToFind {
           let indexPath = IndexPath(row: index, section: 0)
-          self.currentUsers.remove(at: index)
           self.tableView.deleteRows(at: [indexPath], with: .fade)
+          self.currentUsers.remove(at: index)
         }
       }
     })
@@ -87,7 +95,18 @@ class OnlineUsersTableViewController: UITableViewController {
   // MARK: Actions
   
   @IBAction func signoutButtonPressed(_ sender: AnyObject) {
-    dismiss(animated: true, completion: nil)
+    //try! FIRAuth.auth()!.signOut()   //無效
+    
+    //Get the current signed-in user
+    // let cuser = FIRAuth.auth()!.currentUser
+    FIRAuth.auth()!.addStateDidChangeListener(){ auth, user in
+      do {
+        // it will take about 20 seconds for this listener to send out notification to Firebase
+        try auth.signOut()
+        self.dismiss(animated: true, completion: nil)
+      } catch {
+
+      }
+    }
   }
-  
 }

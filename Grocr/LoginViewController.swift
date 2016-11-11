@@ -31,6 +31,8 @@ class LoginViewController: UIViewController {
   @IBOutlet weak var textFieldLoginEmail: UITextField!
   @IBOutlet weak var textFieldLoginPassword: UITextField!
   
+  @IBOutlet weak var currentUser: UILabel!
+    
   //Observing Authentication State
   // Firebase has observers that allow you to monitor a user's authentication state
   override func viewDidLoad() {
@@ -38,6 +40,7 @@ class LoginViewController: UIViewController {
     
     // 1 Create an authentication observer using addStateDidChangeListener. The block is passsed two parameter: auth and user
     //   FIRAuth.auth()?.addStateDidChangeListener(<#T##listener: FIRAuthStateDidChangeListenerBlock##FIRAuthStateDidChangeListenerBlock##(FIRAuth, FIRUser?) -> Void#>)
+    /*
     FIRAuth.auth()!.addStateDidChangeListener(){ auth, user in
       // 2 Test the value of user. Upon sucesssful user authentication, user is populated with the user's information . 
       //   if authentication fails, the variable is nil
@@ -46,17 +49,66 @@ class LoginViewController: UIViewController {
         self.performSegue(withIdentifier: self.loginToList, sender: nil)
       }
     }
+    */
+    
+    /* It won't get refresh while viewDidLoad
+    let user = FIRAuth.auth()?.currentUser
+    if let uemail = user?.email {
+      textFieldLoginEmail.text = "test@gmail.com"
+    } else {
+      textFieldLoginEmail.text = ""
+      textFieldLoginPassword.text = ""
+    }
+    */
+    /*
+    FIRAuth.auth()!.addStateDidChangeListener(){ auth, user in
+      if let uemail = user?.email {
+        let errAlert = UIAlertController(title: "Firebase status monitor", message: uemail, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default)
+        errAlert.addAction(okAction)
+        self.present(errAlert, animated: true, completion: nil)
+      }
+    }
+    */
   }
-  
   
   // MARK: Actions
   @IBAction func loginDidTouch(_ sender: AnyObject) {
+    // User sign in
     
+    FIRAuth.auth()!.signIn(withEmail: textFieldLoginEmail.text!, password: textFieldLoginPassword.text!, completion: {
+      user , error in
+      
+      if error == nil {
+        self.performSegue(withIdentifier: self.loginToList, sender: nil)
+      } else {
+        let errAlert = UIAlertController(title: "Login Failed", message: "Please input your email and password", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default)
+        errAlert.addAction(okAction)
+        self.present(errAlert, animated: true, completion: nil)
+      }
+    })
+    /*
     FIRAuth.auth()!.signIn(withEmail: textFieldLoginEmail.text!, password: textFieldLoginPassword.text!)
-    performSegue(withIdentifier: loginToList, sender: nil)
     
+    //obseleted
+    //performSegue(withIdentifier: loginToList, sender: nil)
+    
+    FIRAuth.auth()!.addStateDidChangeListener(){ auth, user in
+      // 2 Test the value of user. Upon sucesssful user authentication, user is populated with the user's information .
+      //   if authentication fails, the variable is nil
+      
+      if user != nil {
+        // 3 On successful authentication, perform the segue. (go to GroceryListTableViewController.swift)
+        self.performSegue(withIdentifier: self.loginToList, sender: nil)
+      }
+    }
+    */
   }
   
+  func requiredFieldsCheck() -> Bool {
+    return !(self.textFieldLoginEmail.text == "" || self.textFieldLoginPassword.text == "")
+  }
   
   // 在設定 email/password 認證後, 修改此處
   @IBAction func signUpDidTouch(_ sender: AnyObject) {
@@ -77,9 +129,7 @@ class LoginViewController: UIViewController {
             //3 如果沒有錯誤，就會建立帳號
             FIRAuth.auth()!.signIn(withEmail: self.textFieldLoginEmail.text!, password: self.textFieldLoginPassword.text!)
           }
-                                      
         }
-                                    
     }
     
     let cancelAction = UIAlertAction(title: "Cancel",
